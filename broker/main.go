@@ -13,7 +13,7 @@ type Broker struct {
 	addressPort string
 }
 
-func NewBroker(id int64, address string) *Broker {
+func NewBroker(id int64, address string, r *Registry) *Broker {
 	return &Broker{
 		ID:          id,
 		addressPort: address,
@@ -57,6 +57,9 @@ func handleConnection(conn net.Conn) {
 }
 
 func main() {
-	b := NewBroker(1, ":5000")
+	r := NewRegistry()
+	b := NewBroker(1, ":5000", r)
 	b.Start()
+
+	
 }
