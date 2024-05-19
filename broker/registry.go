@@ -1,40 +1,43 @@
 package main
 
 type Registry struct {
-	Producers map[int64]interface{}
-	Consumers map[int64]interface{}
+	Producers map[string]interface{}
+	Consumers map[string]interface{}
 	Topics    map[string]interface{}
-	Groups    map[int64]interface{}
+	Groups    map[string]interface{}
 
-	ConsumerGroupRegistry map[int64]int64
-	TopicGroupRegistry    map[string][]int64
-	ProducerTopicRegistry map[int64][]string
+	ConsumerGroupRegistry map[string]string
+	TopicGroupRegistry    map[string][]string
+	ProducerTopicRegistry map[string][]string
+	OffsetRegistry        map[string]string // "topic/offset" <> consumerId
 }
 
 func NewRegistry() *Registry {
 	return &Registry{
-		Producers: make(map[int64]interface{}),
-		Consumers: make(map[int64]interface{}),
+		Producers: make(map[string]interface{}),
+		Consumers: make(map[string]interface{}),
 		Topics:    make(map[string]interface{}),
-		Groups:    make(map[int64]interface{}),
+		Groups:    make(map[string]interface{}),
 
-		ConsumerGroupRegistry: make(map[int64]int64),
-		TopicGroupRegistry:    make(map[string][]int64),
-		ProducerTopicRegistry: make(map[int64][]string),
+		ConsumerGroupRegistry: make(map[string]string),
+		TopicGroupRegistry:    make(map[string][]string),
+		ProducerTopicRegistry: make(map[string][]string),
 	}
 }
 
-func (r *Registry) AddProducer(producerId int64, topic string) {
-	r.Producers[producerId] = 1
+func (r *Registry) AddProducer(producerId string, topic string) {
+	r.Producers[producerId] = struct{}{}
 	r.ProducerTopicRegistry[producerId] = append(r.ProducerTopicRegistry[producerId], topic)
+	r.Topics[topic] = struct{}{}
 }
 
-func (r *Registry) AddConsumer(consumerId int64, groupId int64) {
-	r.Consumers[consumerId] = 1
+func (r *Registry) AddConsumer(consumerId string, groupId string) {
+	r.Consumers[consumerId] = struct{}{}
 	r.ConsumerGroupRegistry[consumerId] = groupId
 }
 
-func (r *Registry) AddGroup(groupId int64, topic string) {
-	r.Groups[groupId] = 1
+func (r *Registry) AddGroup(groupId string, topic string) {
+	r.Groups[groupId] = struct{}{}
 	r.TopicGroupRegistry[topic] = append(r.TopicGroupRegistry[topic], groupId)
+	r.Topics[topic] = struct{}{}
 }
